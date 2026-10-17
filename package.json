@@ -1,0 +1,7 @@
+{
+  "name": "librispher-frontend-deploy",
+  "private": true,
+  "scripts": {
+    "build:vercel": "node scripts/build-vercel.mjs"
+  }
+}

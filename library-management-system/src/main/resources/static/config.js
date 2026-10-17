@@ -1,0 +1,1 @@
+window.LIBRISPHERE_API_BASE = '';

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Library Management System | Digital Catalog & Circulation</title>
+  <meta name="description" content="Modern, intuitive library management and circulation dashboard for managing books, student borrowings, returns, and inventory statistics.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <!-- Ambient background glow elements -->
+  <div class="bg-glow bg-glow-1" aria-hidden="true"></div>
+  <div class="bg-glow bg-glow-2" aria-hidden="true"></div>
+
+  <!-- Top Navigation Bar -->
+  <header class="navbar" id="mainNavbar">
+    <div class="nav-container">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
+            <path d="M6 6h10"/>
+            <path d="M6 10h10"/>
+            <path d="M6 14h6"/>
+          </svg>
+        </div>
+        <div>
+          <span class="brand-title">LibriSphere</span>
+          <span class="brand-sub">Management Suite</span>
+        </div>
+      </div>
+
+      <div class="nav-actions">
+        <button id="openAddModalBtn" class="btn btn-primary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          <span>Add New Book</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <!-- Hero Header / Metric Stats -->
+    <section class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-header">
+          <span class="metric-label">Unique Titles</span>
+          <div class="metric-icon blue">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+          </div>
+        </div>
+        <div class="metric-value" id="titles">--</div>
+        <div class="metric-footer">Cataloged in database</div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-header">
+          <span class="metric-label">Total Inventory</span>
+          <div class="metric-icon purple">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="8" height="18" x="3" y="3" rx="1"/><rect width="8" height="18" x="13" y="3" rx="1"/></svg>
+          </div>
+        </div>
+        <div class="metric-value" id="totalCopies">--</div>
+        <div class="metric-footer">Combined physical volumes</div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-header">
+          <span class="metric-label">Available on Shelves</span>
+          <div class="metric-icon emerald">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+        </div>
+        <div class="metric-value" id="availableCopies">--</div>
+        <div class="metric-progress-wrap">
+          <div class="metric-progress-bar" id="availProgress" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-header">
+          <span class="metric-label">Active Loans</span>
+          <div class="metric-icon amber">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+        </div>
+        <div class="metric-value" id="activeLoans">--</div>
+        <div class="metric-footer" id="totalLoansInfo">Currently borrowed</div>
+      </div>
+    </section>
+
+    <!-- Navigation Tabs -->
+    <div class="tab-bar">
+      <button class="tab-btn active" id="tabCatalog" onclick="switchTab('catalog')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/></svg>
+        <span>Book Catalog</span>
+      </button>
+      <button class="tab-btn" id="tabLoans" onclick="switchTab('loans')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span>Circulation & Loans</span>
+        <span class="tab-badge" id="activeLoansBadge">0</span>
+      </button>
+      <button class="tab-btn" id="tabIssue" onclick="switchTab('issue')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        <span>Issue Station</span>
+      </button>
+    </div>
+
+    <!-- CATALOG VIEW -->
+    <section id="catalogView" class="view-section active">
+      <div class="glass-panel">
+        <div class="panel-header flex-between">
+          <div class="filter-controls">
+            <div class="search-box">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <input type="text" id="searchInput" placeholder="Search by title, author, or category..." autocomplete="off">
+              <button id="clearSearchBtn" class="clear-btn hidden" title="Clear search">&times;</button>
+            </div>
+            <select id="categoryFilter" class="select-dropdown">
+              <option value="">All Categories</option>
+            </select>
+          </div>
+          <div class="panel-actions">
+            <button class="btn btn-secondary" id="refreshCatalogBtn" title="Reload books">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+              <span>Refresh</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="data-table" id="booksTable">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Title & Details</th>
+                <th>Author</th>
+                <th>Category</th>
+                <th>Availability</th>
+                <th class="text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="bookRows">
+              <tr>
+                <td colspan="6" class="table-loading">
+                  <div class="spinner"></div>
+                  <span>Loading catalog...</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- CIRCULATION / LOANS VIEW -->
+    <section id="loansView" class="view-section">
+      <div class="glass-panel">
+        <div class="panel-header flex-between">
+          <div class="filter-controls">
+            <div class="filter-pills">
+              <button class="pill-btn active" data-filter="all" onclick="filterLoans('all')">All Records</button>
+              <button class="pill-btn" data-filter="active" onclick="filterLoans('active')">Active Borrowed</button>
+              <button class="pill-btn" data-filter="returned" onclick="filterLoans('returned')">Returned</button>
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="switchTab('issue')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <span>Issue New Book</span>
+          </button>
+        </div>
+
+        <div class="table-responsive">
+          <table class="data-table" id="loansTable">
+            <thead>
+              <tr>
+                <th>Loan ID</th>
+                <th>Book Title</th>
+                <th>Borrower</th>
+                <th>Issue Date</th>
+                <th>Due Date</th>
+                <th>Status</th>
+                <th class="text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody id="loanRows">
+              <tr>
+                <td colspan="7" class="table-loading">
+                  <div class="spinner"></div>
+                  <span>Loading circulation records...</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ISSUE STATION VIEW -->
+    <section id="issueView" class="view-section">
+      <div class="glass-panel card-max-width">
+        <div class="panel-title-group">
+          <h2>Issue a Book to a Borrower</h2>
+          <p class="panel-subtitle">Select an in-stock title and register student or patron borrowing details.</p>
+        </div>
+
+        <form id="issueForm" class="modern-form">
+          <div class="form-group">
+            <label for="issueBookSelect">Select Available Title <span class="required">*</span></label>
+            <div class="select-wrapper">
+              <select id="issueBookSelect" required>
+                <option value="">-- Choose a title from inventory --</option>
+              </select>
+            </div>
+            <span class="field-hint" id="bookStockHint">Only titles with available copies appear in the list.</span>
+          </div>
+
+          <div class="form-group">
+            <label for="borrowerInput">Borrower / Student Name <span class="required">*</span></label>
+            <input type="text" id="borrowerInput" required placeholder="e.g., Alex Morgan (Roll #42)" maxlength="120">
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label>Issue Date</label>
+              <input type="text" id="displayIssueDate" readonly class="input-readonly">
+            </div>
+            <div class="form-group">
+              <label>Standard Loan Period</label>
+              <input type="text" value="14 Days from today" readonly class="input-readonly">
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" id="submitIssueBtn" class="btn btn-primary btn-lg">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Confirm & Issue Book</span>
+            </button>
+            <button type="button" class="btn btn-secondary btn-lg" onclick="switchTab('catalog')">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <!-- ADD / EDIT BOOK MODAL -->
+  <div id="bookModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modalTitle">Add New Book</h3>
+        <button id="closeModalBtn" class="close-btn" aria-label="Close dialog">&times;</button>
+      </div>
+      <form id="bookModalForm" class="modern-form">
+        <input type="hidden" id="editBookId" value="">
+        <div class="form-group">
+          <label for="modalBookTitle">Book Title <span class="required">*</span></label>
+          <input type="text" id="modalBookTitle" required maxlength="150" placeholder="e.g., Clean Architecture">
+        </div>
+        <div class="form-group">
+          <label for="modalBookAuthor">Author Name <span class="required">*</span></label>
+          <input type="text" id="modalBookAuthor" required maxlength="100" placeholder="e.g., Robert C. Martin">
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="modalBookCategory">Category / Genre</label>
+            <input type="text" id="modalBookCategory" maxlength="80" placeholder="e.g., Software Engineering" list="categorySuggestions">
+            <datalist id="categorySuggestions"></datalist>
+          </div>
+          <div class="form-group">
+            <label for="modalBookQuantity">Total Copies <span class="required">*</span></label>
+            <input type="number" id="modalBookQuantity" required min="1" max="9999" value="1">
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" id="cancelModalBtn">Cancel</button>
+          <button type="submit" id="saveBookBtn" class="btn btn-primary">Save Book</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <!-- FOOTER -->
+  <footer class="app-footer">
+    <p>LibriSphere &bull; Library Catalog &amp; Circulation</p>
+  </footer>
+
+  <script src="/config.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>

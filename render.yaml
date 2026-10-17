@@ -1,0 +1,40 @@
+services:
+  - type: web
+    name: librisphere-api
+    runtime: docker
+    rootDir: library-management-system
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: render
+      - key: APP_CORS_ALLOWED_ORIGIN_PATTERNS
+        value: https://*.vercel.app
+      - key: DB_HOST
+        fromDatabase:
+          name: librisphere-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: librisphere-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: librisphere-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: librisphere-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: librisphere-db
+          property: password
+
+databases:
+  - name: librisphere-db
+    databaseName: librisphere
+    user: librisphere
+    plan: free
